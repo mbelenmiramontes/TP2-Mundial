@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Blueprint, request, jsonify
 import mysql.connector
 match_bp = Blueprint('match', __name__)
@@ -21,4 +22,12 @@ def procesar_partido():
         cursor.close()
         conn.close()
         return jsonify(partidos)
+=======
+from flask import Blueprint
+
+match_bp = Blueprint('match', __name__)
+@match_bp.route("/partido", methods=["GET"])
+def listar_partidos():
+    return
+>>>>>>> 9ae65bff6181557b6ee6db9bcdd31e8e93175831
 
