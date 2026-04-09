@@ -10,7 +10,7 @@ create table usuarios (
 
 -- tabla partidos
 create table partidos (
-    id int auto_increment,
+    id int auto_increment primary key,
     equipo_local varchar(100) not null,
     equipo_visitante varchar(100) not null,
     fecha datetime not null,
@@ -29,8 +29,8 @@ create table resultados (
 -- References - Saca la información de partidos(id)
 -- Delete cascade - Si se borra un partido de la tabla partidos , borra los resultados de ese partido
 
-# tabla de ranking
-create table ranking (
+-- tabla de predicciones/ranking
+create table predicciones (
     id int auto_increment primary key,
     id_usuario int not null,
     id_partido int not null,

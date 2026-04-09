@@ -7,12 +7,13 @@ db_config = {
     'database': 'database_tpbackend' 
 }
 
-def get_db_connection():
+def conectar_db():
     conn = mysql.connector.connect(**db_config)
     return conn
 
-def execute_query(query, params=None): #SELECT
-    conexion = get_db_connection()
+
+def consultar_db(query, params=None): #GET y tambien SELECT
+    conexion = conectar_db()
     cursor = conexion.cursor(dictionary=True)
 
     try:
@@ -24,8 +25,8 @@ def execute_query(query, params=None): #SELECT
 
     return resultados
 
-def execute_commit(query, params=None): #INSERT, UPDATE, DELETE
-    conexion = get_db_connection()
+def modificar_db(query, params=None): # PUT, PUT, PATCH, DELETE, y tambien INSERT, UPDATE, DELETE
+    conexion = conectar_db()
     cursor = conexion.cursor()
 
     try:
