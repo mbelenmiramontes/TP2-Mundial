@@ -1,18 +1,15 @@
 from flask import Blueprint, request, jsonify
 import mysql.connector
 from backend.database.database import conectar_db 
+from backend.controller.match_controller import mostrar_partidos
 match_bp = Blueprint('match', __name__)
-@match_bp.route("/partidos", methods=["GET", "POST"])
+@match_bp.route("/partidos", methods=["GET"])
 def procesar_partido():
-    if request.method == "GET":
-        conn = conectar_db()
-        cursor = conn.cursor()
-        sql = "SELECT * FROM partidos" 
-        cursor.execute(sql)
-        partidos = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return jsonify(partidos)
-    elif request.method == "POST":
+    equipo = request.args.get('equipo')
+    fecha = request.args.get('fecha')
+    fase = request.args.get('fase')
+    partidos = mostrar_partidos(equipo, fecha, fase)
+    return jsonify(partidos)
+
 
 
