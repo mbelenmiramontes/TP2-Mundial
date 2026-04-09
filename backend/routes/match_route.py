@@ -21,4 +21,7 @@ def procesar_partido():
         cursor.close()
         conn.close()
         return jsonify(partidos)
+    elif request.method == "POST":
+        conn = obtener_coneccion()
+        cursor = conn.cursor()
 
