@@ -12,7 +12,7 @@ def conectar_db():
     return conn
 
 
-def consultar_db(query, params=None): #GET y tambien SELECT
+def consultar_db(query, params=None): #GET(SELECT)
     conexion = conectar_db()
     cursor = conexion.cursor(dictionary=True)
 
@@ -25,7 +25,7 @@ def consultar_db(query, params=None): #GET y tambien SELECT
 
     return resultados
 
-def modificar_db(query, params=None): # PUT, PUT, PATCH, DELETE, y tambien INSERT, UPDATE, DELETE
+def modificar_db(query, params=None): # POST(INSERT), PUT/PATCH(UPDATE), DELETE(DELETE)
     conexion = conectar_db()
     cursor = conexion.cursor()
 
