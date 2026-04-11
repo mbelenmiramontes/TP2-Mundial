@@ -21,6 +21,7 @@ def procesar_partido():
         cursor.close()
         conn.close()
         return jsonify(partidos)
+    
 
 @match_bp.route("/partido/<int:id>", methods=["GET"])
 def get_partido(id):
@@ -58,7 +59,7 @@ def get_partido(id):
                 "equipo_visitante": partido["equipo_visitante"],
                 "fecha": partido["fecha"].isoformat() if partido["fecha"] else None,
                 "fase": partido["fase"],
-                "resultado": None 
+                "resultado": None # Por defecto es None
             }
             if partido["goles_local"] is not None:
                 respuesta["resultado"] = {
