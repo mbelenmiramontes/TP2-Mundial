@@ -1,4 +1,4 @@
-from backend.database.database import conectar_db
+from backend.database.database import consultar_db, conectar_db
 
 def mostrar_partidos(equipo, fecha, fase, limit, offset):
     conn = conectar_db()
@@ -20,7 +20,9 @@ def mostrar_partidos(equipo, fecha, fase, limit, offset):
     
     cursor.execute("SELECT COUNT(*) as total FROM partidos " + condition, params)
     total = cursor.fetchone()
-    
+    cursor.close()
+    conn.close()
+
     if limit:
         pagination += " LIMIT %s"
         params.append(limit)
@@ -28,9 +30,8 @@ def mostrar_partidos(equipo, fecha, fase, limit, offset):
         pagination += " OFFSET %s"
         params.append(offset)
     
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(sql + condition + pagination, params)
-    partidos = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    querry = sql + condition + pagination
+
+    partidos = consultar_db(querry, params)
+    
     return partidos, total
