@@ -1,6 +1,10 @@
 from flask import Blueprint, request, jsonify
 import mysql.connector
+
+from controller.match_controller import crear_partido
+
 match_bp = Blueprint('match', __name__)
+
 @match_bp.route("/partido", methods=["GET", "POST"])
 def obtener_coneccion():
     return mysql.connector.connect(
@@ -9,7 +13,6 @@ def obtener_coneccion():
         password="admin",
         database="partidos"
     )
-
 
 def procesar_partido():
     if request.method == "GET":
@@ -22,3 +25,7 @@ def procesar_partido():
         conn.close()
         return jsonify(partidos)
 
+@match_bp.route("/partidos", methods=["POST"])
+def crear_partido_route():
+    data = request.get_json()
+    return crear_partido(data)
