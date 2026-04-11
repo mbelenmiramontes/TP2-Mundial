@@ -5,7 +5,6 @@ def mostrar_partidos(equipo, fecha, fase, limit, offset):
     cursor = conn.cursor()
     sql = "SELECT * FROM partidos"
     condition = " WHERE 1=1" 
-    pagination = " "
     params = []
 
     if fecha:
@@ -16,22 +15,28 @@ def mostrar_partidos(equipo, fecha, fase, limit, offset):
         params.extend([equipo, equipo])
     if fase:
         condition += " AND fase = %s"
-        params.append(fase)
+        params.append(fase.lower())
     
     cursor.execute("SELECT COUNT(*) as total FROM partidos " + condition, params)
-    total = cursor.fetchone()
+    resultado_total = cursor.fetchone()
+    total = resultado_total[0] if resultado_total else 0
+
     cursor.close()
     conn.close()
+    
+    params_paginados = params.copy()
+    pagination = ""
 
     if limit:
         pagination += " LIMIT %s"
-        params.append(limit)
+        params_paginados.append(limit)
+
     if offset is not None:
         pagination += " OFFSET %s"
-        params.append(offset)
+        params_paginados.append(offset)
     
-    querry = sql + condition + pagination
+    query_final = sql + condition + pagination
 
-    partidos = consultar_db(querry, params)
+    partidos = consultar_db(query_final, params_paginados)
     
     return partidos, total
