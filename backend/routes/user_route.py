@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
+from controller.user_controller import get_users
 import mysql.connector
+
 usuario_bp = Blueprint('usuario', __name__)
 
 def obtener_coneccion():
@@ -9,7 +11,10 @@ def obtener_coneccion():
         password="admin",
         database="usuarios"
     )
-
+  
+@usuario_bp.route("/usuarios", methods=["GET"])
+def list_users():
+    return get_users(request)
 
 @usuario_bp.route("/usuario/<int:id>", methods=["GET"])
 def get_usuario(id):
