@@ -16,10 +16,10 @@ def get_usuario(id):
     if id <= 0:
         error_400 = {
             "errors": [{
-                "code": "BAD_REQUEST",
+                "code": "400",
                 "message": "ID inválido",
                 "level": "error",
-                "description": "El ID debe ser un número entero positivo mayor a cero."
+                "description": "BAD_REQUEST"
             }]
         }
         return jsonify(error_400), 400
@@ -42,20 +42,20 @@ def get_usuario(id):
         if not usuario:
             mensaje_error_404 = {
             "errors": [{
-                "code": "NOT_FOUND",
+                "code": "404",
                 "message": "No se encontró el usuario",
                 "level": "error",
-                "description": f"El {id} no se encuentra en la base de datos."
+                "description": "NOT_FOUND"
             }]
         }
             return jsonify(mensaje_error_404), 404
     except Exception:
         error_500 = {
             "errors": [{
-                "code": "INTERNAL_SERVER_ERROR",
+                "code": "500",
                 "message": "Error interno del servidor",
                 "level": "error",
-                "description": "Hay problemas en el servidor"
+                "description": "INTERNAL_SERVER_ERROR"
             }]
         }
         return jsonify(error_500), 500
