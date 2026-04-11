@@ -1,91 +1,43 @@
-from flask import Blueprint, request, jsonify
-import mysql.connector
-
-match_bp = Blueprint('partido', __name__)
-
-def obtener_db():
-    return mysql.connector.connect(
-        host ="localhost",
-        user="admin",
-        password="admin",
-        database="usuarios"
-
-    )
-
-@match_bp.route("/partidos/<int:id>", methods=["DELETE"])
-def borrar_partido(id):
-    if id <= 0:
-        error_400 = {
-            "errors": [{
-                "code": "BAD_REQUEST",
-                "message": "ID invalido",
-                "level": "error",
-                "description": "El ID debe ser un número entero positivo mayor a cero."
-            }]
-        }   
-        return jsonify(error_400), 400
+from flask import Blueprint, request, jsonify, url_for
+from backend.controller.match_controller import mostrar_partidos
+match_bp = Blueprint('match', __name__)
+@match_bp.route("/partidos", methods=["GET"])
+def listar_partidos():
     try:
-        conn = obtener_db()
-        cursor = conn.cursor(dictionary=True)
+        equipo = request.args.get('equipo')
+        fecha = request.args.get('fecha')
+        fase = request.args.get('fase')
+        limit = request.args.get('_limit', 10,type=int)
+        offset = request.args.get('_offset', 0,type=int)
+        
+        #validaciones
+        fases_validas = ["grupos", "dieciseisavos", "octavos", "cuartos", "semis", "final"]
+        if fase and fase.lower not in fases_validas:
+            return jsonify({"errors": [{"code": "400", "message": "Fase Invalida", "level": "error", "description": f"La fase debe ser una de: {', '.join(fases_validas)}"}}]}), 400
+        
+        if limit < 1:
+            return jsonify({"errors": [{"code": "400", "message": "Limit inválido", "level": "error", "description": "El limit debe ser mayor a 0"}]}), 400
 
-        query = "SELECT * FROM partidos WHERE id = %s"
-        cursor.execute(query, [id])
-        partido = cursor.fetchone()
+        if offset < 0:
+            return jsonify({"errors": [{"code": "400", "message": "Offset inválido", "level": "error", "description": "El offset no puede ser negativo"}]}), 400
 
-        if partido is None:
-            error_404 = {
-                "errors": [{
-                    "code": "NOT_FOUND",
-                    "message": "Partido no encontrado",
-                    "level": "error",
-                    "description": "No existe un partido con el ID proporcionado."
-                }]
-            }
-            return jsonify(error_404), 404
+        partidos, total = mostrar_partidos(equipo, fecha, fase, limit, offset)
 
-        query = "DELETE FROM partidos WHERE id = %s"
-        cursor.execute(query, [id])
-        conn.commit()
-
-        return jsonify({"message": "Partido eliminado correctamente"}), 200
-
-    except Exception as e:
-        error_500 = {
-            "errors": [{
-                "code": "INTERNAL_ERROR",
-                "message": "Error interno del servidor",
-                "level": "error",
-                "description": str(e)
-            }]
+        if not partidos:
+            return '', 204 #Si no hay resultados
+        
+        last = max(0, (int(total) - 1) // limit) * limit
+        links = {
+            "_first": {"href": url_for('match.listar_partidos', _limit=limit, _offset=0)},
+            "_prev": {"href": url_for('match.listar_partidos', _limit=limit, _offset=max(0, offset - limit))} if offset > 0 else None,
+            "_next": {"href": url_for('match.listar_partidos', _limit=limit, _offset=offset + limit)} if offset + limit < total else None,
+            "_last": {"href": url_for('match.listar_partidos', _limit=limit, _offset=last)}
         }
-        return jsonify(error_500), 500
+        
+        return jsonify({"partidos": partidos, "_links": links}), 200
+    except Exception as error:
+        return jsonify({"errors": [{"code":  "500", "message": "Error interno", "level": "error", "description": str(error)}]}), 500
 
-    finally:
-        cursor.close()
-        conn.close()
-    
-
-@match_bp.route("/partido", methods=["GET", "POST"])
-def obtener_coneccion():
-    return mysql.connector.connect(
-        host="localhost",
-        user="admin",
-        password="admin",
-        database="partidos"
-    )
-
-
-def procesar_partido():
-    if request.method == "GET":
-        conn = obtener_coneccion()
-        cursor = conn.cursor()
-        sql = "SELECT * FROM partido" #cambiar nombre de sql si se cambia
-        cursor.execute(sql)
-        partidos = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return jsonify(partidos)
-    
 
 @match_bp.route("/partido/<int:id>", methods=["GET"])
 def get_partido(id):
