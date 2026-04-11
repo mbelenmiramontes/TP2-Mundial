@@ -19,7 +19,7 @@ def mostrar_partidos(equipo, fecha, fase, limit, offset):
         params.append(fase)
     
     cursor.execute("SELECT COUNT(*) as total FROM partidos " + condition, params)
-    total = cursor.fetchone()[0]
+    total = cursor.fetchone()
     
     if limit:
         pagination += " LIMIT %s"
