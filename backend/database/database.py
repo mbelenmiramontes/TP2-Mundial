@@ -2,7 +2,7 @@ import mysql.connector
 
 db_config = {
     'host': 'localhost',
-    'user': 'root',
+    'user': 'root', # pongan su usuario
     'password': '', # pongan su contraseña
     'database': 'database_tpbackend' 
 }

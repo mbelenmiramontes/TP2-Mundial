@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
-from backend.database.database import conectar_db
+from database.database import conectar_db
 from datetime import datetime
 
 predicciones_bp = Blueprint('predicciones', __name__)
 
 @predicciones_bp.route("/partidos/<int:id>/prediccion/", methods=["POST"])
-def post_predicciones(id):
+def post_predicciones(id): #REGISTRAR UNA PREDICCIÓN PARA UN PARTIDO
     info_prediccion = request.get_json()
 
     if not info_prediccion or 'id_usuario' not in info_prediccion or 'local' not in info_prediccion or 'visitante' not in info_prediccion:
@@ -67,7 +67,7 @@ def post_predicciones(id):
     except Exception as e:
         return jsonify({ "errors": [{
                 "code": "500",
-                "message": "Error al insertar en la base de datos",
+                "message": "Internal Server Error",
                 "level": "error",
-                "description": "Internal Server Error"
+                "description": str(e)
             }]}), 500
