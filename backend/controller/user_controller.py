@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify
 from database.database import consultar_db
 
 def get_usuarios(request):

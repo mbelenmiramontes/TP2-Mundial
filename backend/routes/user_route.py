@@ -3,10 +3,43 @@ from controller.user_controller import get_usuarios
 from backend.database.database import conectar_db, modificar_db
 
 usuario_bp = Blueprint('usuario', __name__)
-  
+
 @usuario_bp.route("/usuarios", methods=["GET"])
-def listar_usuarios(): #LISTAR USUARIOS
-    return get_usuarios(request)
+#LISTAR USUARIOS
+def listar_usuarios():
+    try:
+        limit = int(request.args.get("_limit", 10))
+        offset = int(request.args.get("_offset", 0))
+
+        if limit < 1:
+            return jsonify({ "errors": [{
+                    "code": "400", 
+                    "message": "Bad request", 
+                    "level": "error", 
+                    "description": "El limit debe ser mayor a 0"
+                }]}), 400
+        
+        if offset < 0:
+            return jsonify({ "errors": [{
+                    "code": "400", 
+                    "message": "Bad request", 
+                    "level": "error", 
+                    "description": "El offset debe ser mayor o igual a 0"
+                }]}), 400
+        response = get_usuarios(request)
+
+        if not response.get_json().get("usuarios"):
+            return '', 204
+        
+        return response, 200
+    
+    except Exception as error:
+        return jsonify({ "errors": [{
+                "code": "500", 
+                "message": "Internal Server Error", 
+                "level": "error", 
+                "description": str(error)
+            }]}), 500
 
 @usuario_bp.route("/usuarios/<int:id>", methods=["GET"])
 def get_usuarios(id): #OBTENER USUARIO POR ID
