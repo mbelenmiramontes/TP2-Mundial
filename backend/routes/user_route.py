@@ -133,3 +133,45 @@ def crear_usuario(): #CREAR USUARIO
                 "level": "error",
                 "description": str(e)
             }]}), 500
+
+@usuarios_bp.route("/usuarios/<int:id>", methods=["DELETE"])
+def borrar_usuario(id):
+    if id <= 0:
+        error_400 = {
+            "errors": [{
+                "code": "BAD_REQUEST",
+                "message": "ID inválido",
+                "level": "error",
+                "description": "El ID debe ser un número entero positivo mayor a cero."
+            }]
+        }
+        return jsonify(error_400), 400
+    try:
+        conn = obtener_db()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM usuarios WHERE id = %s", [id])
+        usuario = cursor.fetchone()
+        if usuario is None:
+            error_404 = {
+                "errors": [{
+                    "code": "NOT_FOUND",
+                    "message": "Usuario no encontrado",
+                    "level": "error",
+                    "description": "No existe un usuario con el ID proporcionado."
+                }]
+            }
+            return jsonify(error_404), 404
+        cursor.execute("DELETE FROM usuarios WHERE id = %s", [id])
+        conn.commit()
+
+        return '', 204
+    except Exception as e:
+        error_500 = {
+            "errors": [{
+                "code": "INTERNAL_ERROR",
+                "message": "Error interno del servidor",
+                "level": "error",
+                "description": str(e)
+            }]
+        }
+        return jsonify(error_500), 500
