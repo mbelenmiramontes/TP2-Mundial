@@ -1,9 +1,16 @@
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+db_password = os.getenv('DB_PASSWORD')
+db_user = os.getenv('DB_USER')
 
 db_config = {
     'host': 'localhost',
-    'user': 'root', # pongan su usuario
-    'password': '', # pongan su contraseña
+    'user': db_user,
+    'password': db_password,
     'database': 'database_tpbackend' 
 }
 
