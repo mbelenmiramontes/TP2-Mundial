@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
 from controller.user_controller import get_usuarios
-from backend.database.database import conectar_db, modificar_db
+from database.database import conectar_db, modificar_db
 
 usuario_bp = Blueprint('usuario', __name__)
   
 @usuario_bp.route("/usuarios", methods=["GET"])
 def listar_usuarios(): #LISTAR USUARIOS
     return get_usuarios(request)
+
 
 @usuario_bp.route("/usuarios/<int:id>", methods=["GET"])
 def get_usuarios(id): #OBTENER USUARIO POR ID
@@ -53,6 +54,7 @@ def get_usuarios(id): #OBTENER USUARIO POR ID
                 "level": "error",
                 "description": "INTERNAL_SERVER_ERROR"
             }]}), 500
+
 
 @usuario_bp.route("/usuarios", methods=["POST"])
 def crear_usuario(): #CREAR USUARIO

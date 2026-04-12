@@ -1,9 +1,9 @@
 from flask import jsonify, request
 from database.database import consultar_db
 
-def get_usuarios(request):
-    limit = int(request.args.get("_limit", 10))
-    offset = int(request.args.get("_offset", 0))
+def get_usuarios(request): #GET/USUARIOS
+    limit = request.args.get("_limit", 10, type=int)
+    offset = request.args.get("_offset", 0, type=int)
 
     query = "SELECT id, nombre, email FROM usuarios LIMIT %s OFFSET %s"
     params = (limit, offset)

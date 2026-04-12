@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, url_for
-from backend.controller.match_controller import mostrar_partidos
-from backend.database.database import conectar_db
+from controller.match_controller import mostrar_partidos, crear_partido
+from database.database import conectar_db
 
 match_bp = Blueprint('match', __name__)
 
@@ -126,6 +126,12 @@ def get_partido(id): #OBTENER PARTIDO POR ID
                 "level": "error",
                 "description": str(e)
             }]}), 500
+
+
+@match_bp.route("/partidos", methods=["POST"])
+def crear_partido_route(): # CREAR PARTIDO
+    data = request.get_json()
+    return crear_partido(data)
 
 
 @match_bp.route("/partidos/<int:id>", methods=["DELETE"])
