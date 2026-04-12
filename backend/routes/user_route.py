@@ -134,7 +134,7 @@ def crear_usuario(): #CREAR USUARIO
                 "description": str(e)
             }]}), 500
 
-@usuarios_bp.route("/usuarios/<int:id>", methods=["DELETE"])
+@usuario_bp.route("/usuarios/<int:id>", methods=["DELETE"])
 def borrar_usuario(id):
     if id <= 0:
         error_400 = {
