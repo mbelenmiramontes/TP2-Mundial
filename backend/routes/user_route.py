@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from controller.user_controller import get_usuarios
-from database.database import conectar_db, modificar_db
+from database.database import conectar_db, modificar_db, consultar_db
 
 usuario_bp = Blueprint('usuario', __name__)
 
@@ -135,43 +135,35 @@ def crear_usuario(): #CREAR USUARIO
             }]}), 500
 
 @usuario_bp.route("/usuarios/<int:id>", methods=["DELETE"])
-def borrar_usuario(id):
+def borrar_usuario(id): #BORRAR USUARIO
     if id <= 0:
-        error_400 = {
-            "errors": [{
-                "code": "BAD_REQUEST",
-                "message": "ID inválido",
+        return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
                 "level": "error",
                 "description": "El ID debe ser un número entero positivo mayor a cero."
-            }]
-        }
-        return jsonify(error_400), 400
+            }]}), 400
+
     try:
-        conn = obtener_db()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM usuarios WHERE id = %s", [id])
-        usuario = cursor.fetchone()
-        if usuario is None:
-            error_404 = {
-                "errors": [{
-                    "code": "NOT_FOUND",
-                    "message": "Usuario no encontrado",
+
+        usuario = consultar_db("SELECT id FROM usuarios WHERE id = %s", (id,))
+
+        if not usuario:
+            return jsonify({ "errors": [{
+                    "code": "404",
+                    "message": "Not Found",
                     "level": "error",
                     "description": "No existe un usuario con el ID proporcionado."
-                }]
-            }
-            return jsonify(error_404), 404
-        cursor.execute("DELETE FROM usuarios WHERE id = %s", [id])
-        conn.commit()
+                }]}), 404
+
+        modificar_db("DELETE FROM usuarios WHERE id = %s", (id,))
 
         return '', 204
+    
     except Exception as e:
-        error_500 = {
-            "errors": [{
-                "code": "INTERNAL_ERROR",
-                "message": "Error interno del servidor",
+        return jsonify({ "errors": [{
+                "code": "500",
+                "message": "Internal Server Error",
                 "level": "error",
                 "description": str(e)
-            }]
-        }
-        return jsonify(error_500), 500
+            }]}), 500
