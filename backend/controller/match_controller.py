@@ -112,11 +112,101 @@ def crear_partido(data): #POST/PARTIDOS
 
     except Exception as e:
         return jsonify({ "errors": [{
-            "code": "500", 
-            "message": "Internal Server Error", 
-            "level": "error", 
+            "code": "500",
+            "message": "Internal Server Error",
+            "level": "error",
             "description": str(e)}]}), 500
-    
+
+def actualizar_partido(id, data): #PUT/PARTIDOS/<ID>
+    try:
+        # -- Validation --
+        if not data:
+            return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "JSON requerido"
+            }]}), 400
+
+        campos = ["equipo_local", "equipo_visitante", "fecha", "fase"]
+        for campo in campos:
+            if campo not in data:
+                return jsonify({ "errors": [{
+                    "code": "400",
+                    "message": "Bad Request",
+                    "level": "error",
+                    "description": f"Falta el campo obligatorio: {campo}"}]}), 400
+
+        if data["equipo_local"] == data["equipo_visitante"]:
+            return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "El equipo local y visitante no pueden ser el mismo"}]}), 400
+
+        fases_validas = ["grupos", "dieciseisavos", "octavos", "cuartos", "semis", "final"]
+        if data["fase"] not in fases_validas:
+            return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "Fase inválida"}]}), 400
+
+        partido_existente = consultar_db("SELECT id FROM partidos WHERE id = %s", (id,))
+        if not partido_existente:
+            return jsonify({ "errors": [{
+                "code": "404",
+                "message": "Not Found",
+                "level": "error",
+                "description": "El partido no existe"}]}), 404
+
+        query_check = """
+            SELECT id FROM partidos
+            WHERE equipo_local=%s AND equipo_visitante=%s AND fecha=%s AND id != %s
+        """
+        duplicado = consultar_db(query_check, (
+            data["equipo_local"],
+            data["equipo_visitante"],
+            data["fecha"],
+            id
+        ))
+
+        if duplicado:
+            return jsonify({ "errors": [{
+                "code": "409",
+                "message": "Conflict",
+                "level": "error",
+                "description": "Ya existe otro partido con esos equipos en esa fecha"}]}), 409
+
+        # -- Update --
+        query_update = """
+            UPDATE partidos
+            SET equipo_local=%s, equipo_visitante=%s, fecha=%s, fase=%s
+            WHERE id=%s
+        """
+        modificar_db(query_update, (
+            data["equipo_local"],
+            data["equipo_visitante"],
+            data["fecha"],
+            data["fase"],
+            id
+        ))
+
+        return jsonify({
+            "id": id,
+            "equipo_local": data["equipo_local"],
+            "equipo_visitante": data["equipo_visitante"],
+            "fecha": data["fecha"],
+            "fase": data["fase"]
+        }), 200
+
+    except Exception as e:
+        return jsonify({ "errors": [{
+            "code": "500",
+            "message": "Internal Server Error",
+            "level": "error",
+            "description": str(e)}]}), 500
+
 def actualizar_partido_id(id, data):
     partido = consultar_db("SELECT * FROM patidos WHERE id = %s", (id))
     if not partido:
