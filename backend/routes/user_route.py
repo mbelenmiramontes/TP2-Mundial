@@ -43,7 +43,7 @@ def listar_usuarios():
 
 
 @usuario_bp.route("/usuarios/<int:id>", methods=["GET"])
-def get_usuarios(id): #OBTENER USUARIO POR ID
+def listar_usuario_id(id): #OBTENER USUARIO POR ID
     if id <= 0:
         return jsonify({ "errors": [{
                 "code": "400",

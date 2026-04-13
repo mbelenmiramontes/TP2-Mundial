@@ -2,6 +2,7 @@ from flask import Flask
 from routes.match_route import match_bp
 from routes.user_route import usuario_bp
 from routes.predicciones_route import predicciones_bp
+from routes.ranking_route import ranking_bp
 
 app = Flask(__name__)
 
@@ -12,6 +13,7 @@ def index():
 app.register_blueprint(match_bp)
 app.register_blueprint(usuario_bp)
 app.register_blueprint(predicciones_bp)
+app.register_blueprint(ranking_bp)
 
 if __name__== "__main__":
     app.run(port=8000, debug=True)
