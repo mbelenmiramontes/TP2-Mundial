@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, url_for
-from controller.match_controller import mostrar_partidos, crear_partido
+from controller.match_controller import mostrar_partidos, crear_partido, actualizar_partido_id
 from database.database import conectar_db
 
 match_bp = Blueprint('match', __name__)
@@ -176,3 +176,26 @@ def borrar_partido(id): #ELIMINAR PARTIDO
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
+@match_bp.route("/partidos/<int:id>", methods = ["PATCH"])
+def actualizar_parcialmente_partido(id):
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"errors": [{"code": "400", "message": "Body vacio", "level": "error", "description": "Debe enviar al menos un campo para actualizar"}]}), 400
+        
+        campos_validos = ["equipo_local", "equipo_visitante", "fase", "fecha"]
+        for campo in data:
+            if campo not in campos_validos:
+                return jsonify({"errors": [{"code": "400", "message": "Campo inválido", "level": "error", "description": f"El campo '{campo}' no es válido"}]}), 400
+
+        resultado = actualizar_partido_id(id, data)
+
+        if not resultado:
+            return jsonify({"errors": [{"code": "404", "message": "No encontrado", "level": "error", "description": f"No existe el partido con id {id}"}]}), 404
+        
+        return '', 204
+    
+    except Exception as error:
+        return jsonify({"errors": [{"code": "500", "message": "Error interno", "level": "error", "description": str(error)}]}), 500
