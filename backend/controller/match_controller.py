@@ -206,3 +206,20 @@ def actualizar_partido(id, data): #PUT/PARTIDOS/<ID>
             "message": "Internal Server Error",
             "level": "error",
             "description": str(e)}]}), 500
+
+def actualizar_partido_id(id, data):
+    partido = consultar_db("SELECT * FROM patidos WHERE id = %s", (id))
+    if not partido:
+        return None
+    
+    campos = []
+    parametros = []
+
+    for campos, valor in data.items():
+        campos.append(f"{campos} = %s")
+        parametros.append(valor)
+
+    parametros.append(id)
+    sql = f"UPDATE partidos SET {', '.join(campos)} WHERE id = %s"
+    modificar_db(sql, parametros)
+    return True
