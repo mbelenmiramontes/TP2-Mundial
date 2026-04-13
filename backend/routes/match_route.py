@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, url_for
-from controller.match_controller import mostrar_partidos, crear_partido
+from controller.match_controller import mostrar_partidos, crear_partido, actualizar_partido
+from controller.results_controller import cargar_resultado
 from database.database import conectar_db
 
 match_bp = Blueprint('match', __name__)
@@ -176,3 +177,28 @@ def borrar_partido(id): #ELIMINAR PARTIDO
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
+
+
+@match_bp.route("/partidos/<int:id>", methods=["PUT"])
+def actualizar_partido_route(id): # ACTUALIZAR PARTIDO
+    if id <= 0:
+        return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "El ID debe ser un número entero positivo mayor a cero."
+            }]}), 400
+    data = request.get_json()
+    return actualizar_partido(id, data)
+
+@match_bp.route("/partidos/<int:id>/resultados", methods=["PUT"])
+def put_resultado(id): # CARGAR/ACTUALIZAR RESULTADO DE UN PARTIDO
+    if id <= 0:
+        return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "El ID debe ser un número entero positivo mayor a cero."
+            }]}), 400
+    data = request.get_json()
+    return cargar_resultado(id, data)
