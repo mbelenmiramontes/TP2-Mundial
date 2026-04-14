@@ -25,7 +25,8 @@ def obtener_ranking():
                     "level": "error", 
                     "description": "El offset debe ser mayor o igual a 0"
                 }]}), 400
-        response = get_ranking(request)
+        #response = get_ranking(request)
+        response = get_ranking(limit, offset)
 
         if not response.get_json().get("ranking"):
             return '', 204
