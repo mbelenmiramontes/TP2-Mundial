@@ -69,8 +69,14 @@ def listar_partidos(): #LISTAR PARTIDOS
         }]}), 500
 
 
+@match_bp.route("/partidos", methods=["POST"])
+def crear_partido_route(): # CREAR PARTIDO
+    data = request.get_json()
+    return crear_partido(data)
+
+
 @match_bp.route("/partidos/<int:id>", methods=["GET"])
-def get_partido(id): #OBTENER PARTIDO POR ID
+def obtener_partido(id): #OBTENER PARTIDO POR ID
     if id <= 0:
         return jsonify({"errors": [{
                 "code": "400",
@@ -129,10 +135,61 @@ def get_partido(id): #OBTENER PARTIDO POR ID
             }]}), 500
 
 
-@match_bp.route("/partidos", methods=["POST"])
-def crear_partido_route(): # CREAR PARTIDO
+@match_bp.route("/partidos/<int:id>", methods=["PUT"])
+def reemplazar_partido_route(id): # REEMPLAZAR UN PARTIDO POR ID
+    if id <= 0:
+        return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "El ID debe ser un número entero positivo mayor a cero."
+            }]}), 400
     data = request.get_json()
-    return crear_partido(data)
+    return actualizar_partido(id, data)
+
+
+@match_bp.route("/partidos/<int:id>", methods = ["PATCH"])
+def actualizar_parcialmente_partido(id): # ACTUALIZAR PARCIALMENTE UN PARTIDO
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({ "errors": [{
+                "code": "400", 
+                "message": "Bad Request", 
+                "level": "error", 
+                "description": "Debe enviar al menos un campo para actualizar"
+            }]}), 400
+        
+        campos_validos = ["equipo_local", "equipo_visitante", "fase", "fecha"]
+        for campo in data:
+            if campo not in campos_validos:
+                return jsonify({ "errors": [{
+                    "code": "400", 
+                    "message": "Bad Request", 
+                    "level": "error", 
+                    "description": f"El campo '{campo}' no es válido"
+                }]}), 400
+
+        resultado = actualizar_partido_id(id, data)
+
+        if not resultado:
+            return jsonify({ "errors": [{
+                "code": "404", 
+                "message": "No encontrado", 
+                "level": "error", 
+                "description": f"No existe el partido con id {id}"
+            }]}), 404
+        
+        return '', 204
+    
+    except Exception as error:
+        return jsonify({ "errors": [{
+            "code": "500", 
+            "message": "Internal Server Error", 
+            "level": "error", 
+            "description": str(error)
+        }]}), 500
 
 
 @match_bp.route("/partidos/<int:id>", methods=["DELETE"])
@@ -178,20 +235,9 @@ def borrar_partido(id): #ELIMINAR PARTIDO
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-@match_bp.route("/partidos/<int:id>", methods=["PUT"])
-def actualizar_partido_route(id): # ACTUALIZAR PARTIDO
-    if id <= 0:
-        return jsonify({ "errors": [{
-                "code": "400",
-                "message": "Bad Request",
-                "level": "error",
-                "description": "El ID debe ser un número entero positivo mayor a cero."
-            }]}), 400
-    data = request.get_json()
-    return actualizar_partido(id, data)
 
-@match_bp.route("/partidos/<int:id>/resultados", methods=["PUT"])
-def put_resultado(id): # CARGAR/ACTUALIZAR RESULTADO DE UN PARTIDO
+@match_bp.route("/partidos/<int:id>/resultado", methods=["PUT"])
+def actualizar_resultado(id): # CARGAR/ACTUALIZAR RESULTADO DE UN PARTIDO
     if id <= 0:
         return jsonify({ "errors": [{
                 "code": "400",
@@ -201,26 +247,3 @@ def put_resultado(id): # CARGAR/ACTUALIZAR RESULTADO DE UN PARTIDO
             }]}), 400
     data = request.get_json()
     return cargar_resultado(id, data)
-
-@match_bp.route("/partidos/<int:id>", methods = ["PATCH"])
-def actualizar_parcialmente_partido(id):
-    try:
-        data = request.get_json()
-
-        if not data:
-            return jsonify({"errors": [{"code": "400", "message": "Body vacio", "level": "error", "description": "Debe enviar al menos un campo para actualizar"}]}), 400
-        
-        campos_validos = ["equipo_local", "equipo_visitante", "fase", "fecha"]
-        for campo in data:
-            if campo not in campos_validos:
-                return jsonify({"errors": [{"code": "400", "message": "Campo inválido", "level": "error", "description": f"El campo '{campo}' no es válido"}]}), 400
-
-        resultado = actualizar_partido_id(id, data)
-
-        if not resultado:
-            return jsonify({"errors": [{"code": "404", "message": "No encontrado", "level": "error", "description": f"No existe el partido con id {id}"}]}), 404
-        
-        return '', 204
-    
-    except Exception as error:
-        return jsonify({"errors": [{"code": "500", "message": "Error interno", "level": "error", "description": str(error)}]}), 500

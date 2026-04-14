@@ -5,8 +5,7 @@ from database.database import conectar_db, modificar_db, consultar_db
 usuario_bp = Blueprint('usuario', __name__)
 
 @usuario_bp.route("/usuarios", methods=["GET"])
-#LISTAR USUARIOS
-def listar_usuarios():
+def listar_usuarios(): #LISTAR USUARIOS
     try:
         limit = int(request.args.get("_limit", 10))
         offset = int(request.args.get("_offset", 0))
@@ -43,7 +42,7 @@ def listar_usuarios():
 
 
 @usuario_bp.route("/usuarios/<int:id>", methods=["GET"])
-def listar_usuario_id(id): #OBTENER USUARIO POR ID
+def obtener_usuario(id): #OBTENER USUARIO POR ID
     if id <= 0:
         return jsonify({ "errors": [{
                 "code": "400",
@@ -133,6 +132,7 @@ def crear_usuario(): #CREAR USUARIO
                 "level": "error",
                 "description": str(e)
             }]}), 500
+
 
 @usuario_bp.route("/usuarios/<int:id>", methods=["DELETE"])
 def borrar_usuario(id): #BORRAR USUARIO
