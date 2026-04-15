@@ -1,9 +1,16 @@
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+db_password = os.getenv('DB_PASSWORD')
+db_user = os.getenv('DB_USER')
 
 db_config = {
     'host': 'localhost',
-    'user': 'root',
-    'password': '', # pongan su contraseña
+    'user': db_user,
+    'password': db_password,
     'database': 'database_tpbackend' 
 }
 
@@ -12,7 +19,7 @@ def conectar_db():
     return conn
 
 
-def consultar_db(query, params=None): #GET y tambien SELECT
+def consultar_db(query, params=None): #GET(SELECT)
     conexion = conectar_db()
     cursor = conexion.cursor(dictionary=True)
 
@@ -25,7 +32,7 @@ def consultar_db(query, params=None): #GET y tambien SELECT
 
     return resultados
 
-def modificar_db(query, params=None): # PUT, PUT, PATCH, DELETE, y tambien INSERT, UPDATE, DELETE
+def modificar_db(query, params=None): # POST(INSERT), PUT/PATCH(UPDATE), DELETE(DELETE)
     conexion = conectar_db()
     cursor = conexion.cursor()
 

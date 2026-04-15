@@ -44,3 +44,19 @@ create table predicciones (
 -- Foreign key - Numero que "pertenece" a otra tabla
 -- References - Saca la información de la tabla usuarios(id)/partidos(id)
 -- Delete cascade - Si se borra un usuario/partido, borra los resultados de predicción
+
+-- Para acceder a las tablas
+SELECT * FROM usuarios;
+SELECT * FROM partidos;
+SELECT * FROM resultados;
+SELECT * FROM predicciones;
+
+-- Borrar items de las tablas
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE predicciones;
+TRUNCATE TABLE resultados;
+TRUNCATE TABLE usuarios;
+TRUNCATE TABLE partidos;
+
+SET FOREIGN_KEY_CHECKS = 1;
