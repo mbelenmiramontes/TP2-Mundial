@@ -86,8 +86,7 @@ def obtener_usuario(id): #OBTENER USUARIO POR ID
                 "level": "error",
                 "description": "INTERNAL_SERVER_ERROR"
             }]}), 500
-
-
+    
 @usuario_bp.route("/usuarios", methods=["POST"])
 def crear_usuario(): #CREAR USUARIO
     data = request.get_json()
@@ -133,6 +132,66 @@ def crear_usuario(): #CREAR USUARIO
                 "description": str(e)
             }]}), 500
 
+@usuario_bp.route("/usuarios/<int:id>", methods=["PUT"])
+def actualizar_usuario(id): #REEMPLAZAR INFORMACION DEL USUARIO
+    data = request.get_json()
+    if id <= 0:
+        return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "El ID debe ser un número entero mayor a 0"
+            }]}), 400
+    nombre = data.get("nombre")
+    email = data.get("email")
+
+    usuario_existente = consultar_db("SELECT id FROM usuarios WHERE id = %s", (id,))
+    if not usuario_existente:
+        return jsonify({ "errors": [{
+                "code": "404",
+                "message": "Not Found",
+                "level": "error",
+                "description": "El usuario no existe"
+            }]}), 404
+
+    if not nombre or not email:
+        return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "Falta un dato obligatorio: nombre y email son requeridos"
+            }]}), 400
+    
+    try:
+        query = "UPDATE usuarios SET nombre=%s, email=%s WHERE id=%s"
+        params = (nombre, email, id)
+        modificar_db(query, params)
+
+        return jsonify({
+            "mensaje": "Usuario actualizado correctamente",
+            "usuario": {
+                "id": id,
+                "nombre": nombre,
+                "email": email
+            }
+        }), 200
+
+    except Exception as e:
+        if "Duplicate entry" in str(e): #POR SI EL EMAIL YA ESTÁ ASOCIADO A OTRO USUARIO
+            return jsonify({ "errors": [{
+                    "code": "409",
+                    "message": "Conflict",
+                    "level": "error",
+                    "description": "El email ya se encuentra registrado a otra cuenta"
+                }]}), 409
+            
+        return jsonify({ "errors": [{
+                "code": "500",
+                "message": "Internal Server Error",
+                "level": "error",
+                "description": str(e)
+            }]}), 500
+    
 
 @usuario_bp.route("/usuarios/<int:id>", methods=["DELETE"])
 def borrar_usuario(id): #BORRAR USUARIO
