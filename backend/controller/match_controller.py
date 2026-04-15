@@ -1,4 +1,5 @@
 from flask import jsonify
+from datetime import datetime
 from database.database import consultar_db, conectar_db, modificar_db
 
 def mostrar_partidos(equipo, fecha, fase, limit, offset): #GET/PARTIDOS
@@ -42,6 +43,7 @@ def mostrar_partidos(equipo, fecha, fase, limit, offset): #GET/PARTIDOS
     
     return partidos, total
 
+
 def crear_partido(data): #POST/PARTIDOS
     try:
         if not data:
@@ -59,22 +61,43 @@ def crear_partido(data): #POST/PARTIDOS
                     "code": "400", 
                     "message": "Bad Request", 
                     "level": "error", 
-                    "description": f"Falta el campo obligatorio: {campo}"}]}), 400
+                    "description": f"Falta el campo obligatorio: {campo}"
+                }]}), 400
+        
+        data["equipo_local"] = data["equipo_local"].strip().title()
+        data["equipo_visitante"] = data["equipo_visitante"].strip().title()
 
         if data["equipo_local"] == data["equipo_visitante"]:
             return jsonify({ "errors": [{
                 "code": "400", 
                 "message": "Bad Request", 
                 "level": "error", 
-                "description": "El equipo local y visitante no pueden ser el mismo"}]}), 400
-
+                "description": "El equipo local y visitante no pueden ser el mismo"
+            }]}), 400
+        
+        fase = data["fase"].strip().lower()
+          
         fases_validas = ["grupos", "dieciseisavos", "octavos", "cuartos", "semis", "final"]
-        if data["fase"] not in fases_validas:
+        if fase not in fases_validas:
             return jsonify({ "errors": [{
                 "code": "400", 
                 "message": "Bad Request", 
                 "level": "error", 
-                "description": "Fase inválida"}]}), 400
+                "description": "Fase inválida"
+            }]}), 400
+          
+        data["fase"] = fase
+          
+        try:
+            fecha = datetime.strptime(data["fecha"], "%Y-%m-%d")
+            data["fecha"] = fecha.strftime("%Y-%m-%d")
+        except ValueError:
+            return jsonify({ "errors": [{
+                "code": "400",
+                "message": "Bad Request",
+                "level": "error",
+                "description": "Fecha inválida, usar YYYY-MM-DD"
+            }]}), 400
 
         query_check = """
             SELECT id FROM partidos 
@@ -91,7 +114,8 @@ def crear_partido(data): #POST/PARTIDOS
                 "code": "409", 
                 "message": "Conflict", 
                 "level": "error", 
-                "description": "El partido ya existe"}]}), 409
+                "description": "El partido ya existe"
+            }]}), 409
 
         query_insert = """
             INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase)
@@ -115,7 +139,9 @@ def crear_partido(data): #POST/PARTIDOS
             "code": "500",
             "message": "Internal Server Error",
             "level": "error",
-            "description": str(e)}]}), 500
+            "description": str(e)
+        }]}), 500
+
 
 def actualizar_partido(id, data): #PUT/PARTIDOS/<ID>
     try:
@@ -197,6 +223,7 @@ def actualizar_partido(id, data): #PUT/PARTIDOS/<ID>
             "level": "error",
             "description": str(e)
         }]}), 500
+
 
 def actualizar_partido_id(id, data): #PATCH/PARTIDOS/<ID>
     partido = consultar_db("SELECT * FROM partidos WHERE id = %s", (id,))

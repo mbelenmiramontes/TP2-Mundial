@@ -5,16 +5,16 @@ from database.database import conectar_db
 
 match_bp = Blueprint('match', __name__)
 
+
 @match_bp.route("/partidos", methods=["GET"])
-def listar_partidos(): #LISTAR PARTIDOS
+def listar_partidos():
     try:
         equipo = request.args.get('equipo')
         fecha = request.args.get('fecha')
         fase = request.args.get('fase')
-        limit = request.args.get('_limit', 10,type=int)
-        offset = request.args.get('_offset', 0,type=int)
+        limit = request.args.get('_limit', 10, type=int)
+        offset = request.args.get('_offset', 0, type=int)
         
-        #Validaciones
         fases_validas = ["grupos", "dieciseisavos", "octavos", "cuartos", "semis", "final"]
         if fase and fase.lower() not in fases_validas:
             return jsonify({"errors": [{
@@ -43,7 +43,7 @@ def listar_partidos(): #LISTAR PARTIDOS
         partidos, total = mostrar_partidos(equipo, fecha, fase, limit, offset)
 
         if not partidos:
-            return '', 204 #Si no hay resultados
+            return '', 204
         
         last = max(0, (int(total) - 1) // limit) * limit
 
@@ -70,20 +70,20 @@ def listar_partidos(): #LISTAR PARTIDOS
 
 
 @match_bp.route("/partidos", methods=["POST"])
-def crear_partido_route(): # CREAR PARTIDO
+def crear_partido_route():
     data = request.get_json()
     return crear_partido(data)
 
 
 @match_bp.route("/partidos/<int:id>", methods=["GET"])
-def obtener_partido(id): #OBTENER PARTIDO POR ID
+def obtener_partido(id):
     if id <= 0:
         return jsonify({"errors": [{
-                "code": "400",
-                "message": "Bad Request",
-                "level": "error",
-                "description": "El ID debe ser un número positivo."
-            }]}), 400
+            "code": "400",
+            "message": "Bad Request",
+            "level": "error",
+            "description": "El ID debe ser un número positivo."
+        }]}), 400
     
     try:
         conn = conectar_db()
@@ -108,8 +108,8 @@ def obtener_partido(id): #OBTENER PARTIDO POR ID
                 "equipo_local": partido["equipo_local"],
                 "equipo_visitante": partido["equipo_visitante"],
                 "fecha": partido["fecha"].isoformat() if partido["fecha"] else None,
-                "fase": partido["fase"].upper() if partido ["fase"] else None,
-                "resultado": None # Por defecto es None
+                "fase": partido["fase"].upper() if partido["fase"] else None,
+                "resultado": None
             }
 
             if partido["goles_local"] is not None:
@@ -120,36 +120,36 @@ def obtener_partido(id): #OBTENER PARTIDO POR ID
             return jsonify(respuesta), 200
         
         return jsonify({"errors": [{
-                "code": "404",
-                "message": "Not Found",
-                "level": "error",
-                "description": "El partido solicitado no existe."
-            }]}), 404
+            "code": "404",
+            "message": "Not Found",
+            "level": "error",
+            "description": "El partido solicitado no existe."
+        }]}), 404
     
     except Exception as e:
         return jsonify({"errors": [{
-                "code": "500",
-                "message": "Internal Server Error",
-                "level": "error",
-                "description": str(e)
-            }]}), 500
+            "code": "500",
+            "message": "Internal Server Error",
+            "level": "error",
+            "description": str(e)
+        }]}), 500
 
 
 @match_bp.route("/partidos/<int:id>", methods=["PUT"])
-def reemplazar_partido_route(id): # REEMPLAZAR UN PARTIDO POR ID
+def reemplazar_partido_route(id):
     if id <= 0:
         return jsonify({ "errors": [{
-                "code": "400",
-                "message": "Bad Request",
-                "level": "error",
-                "description": "El ID debe ser un número entero positivo mayor a cero."
-            }]}), 400
+            "code": "400",
+            "message": "Bad Request",
+            "level": "error",
+            "description": "El ID debe ser un número entero positivo mayor a cero."
+        }]}), 400
     data = request.get_json()
     return actualizar_partido(id, data)
 
 
-@match_bp.route("/partidos/<int:id>", methods = ["PATCH"])
-def actualizar_parcialmente_partido(id): # ACTUALIZAR PARCIALMENTE UN PARTIDO
+@match_bp.route("/partidos/<int:id>", methods=["PATCH"])
+def actualizar_parcialmente_partido(id):
     try:
         data = request.get_json()
 
@@ -193,14 +193,14 @@ def actualizar_parcialmente_partido(id): # ACTUALIZAR PARCIALMENTE UN PARTIDO
 
 
 @match_bp.route("/partidos/<int:id>", methods=["DELETE"])
-def borrar_partido(id): #ELIMINAR PARTIDO
+def borrar_partido(id):
     if id <= 0:
         return jsonify({ "errors": [{
-                "code": "400",
-                "message": "Bad Request",
-                "level": "error",
-                "description": "El ID debe ser un número entero positivo mayor a cero."
-            }]}), 400
+            "code": "400",
+            "message": "Bad Request",
+            "level": "error",
+            "description": "El ID debe ser un número entero positivo mayor a cero."
+        }]}), 400
     
     try:
         conn = conectar_db()
@@ -211,11 +211,11 @@ def borrar_partido(id): #ELIMINAR PARTIDO
 
         if partido is None:
             return jsonify({ "errors": [{
-                    "code": "404",
-                    "message": "Not Found",
-                    "level": "error",
-                    "description": "No existe un partido con el ID proporcionado."
-                }]}), 404
+                "code": "404",
+                "message": "Not Found",
+                "level": "error",
+                "description": "No existe un partido con el ID proporcionado."
+            }]}), 404
 
         query = "DELETE FROM partidos WHERE id = %s"
         cursor.execute(query, [id])
@@ -225,11 +225,11 @@ def borrar_partido(id): #ELIMINAR PARTIDO
 
     except Exception as e:
         return jsonify({ "errors": [{
-                "code": "500",
-                "message": "Internal Server Error",
-                "level": "error",
-                "description": str(e)
-            }]}), 500
+            "code": "500",
+            "message": "Internal Server Error",
+            "level": "error",
+            "description": str(e)
+        }]}), 500
 
     finally:
         if 'cursor' in locals(): cursor.close()
@@ -237,13 +237,13 @@ def borrar_partido(id): #ELIMINAR PARTIDO
 
 
 @match_bp.route("/partidos/<int:id>/resultado", methods=["PUT"])
-def actualizar_resultado(id): # CARGAR/ACTUALIZAR RESULTADO DE UN PARTIDO
+def actualizar_resultado(id):
     if id <= 0:
         return jsonify({ "errors": [{
-                "code": "400",
-                "message": "Bad Request",
-                "level": "error",
-                "description": "El ID debe ser un número entero positivo mayor a cero."
-            }]}), 400
+            "code": "400",
+            "message": "Bad Request",
+            "level": "error",
+            "description": "El ID debe ser un número entero positivo mayor a cero."
+        }]}), 400
     data = request.get_json()
     return cargar_resultado(id, data)
