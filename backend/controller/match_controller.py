@@ -12,12 +12,25 @@ def crear_partido(data):
             if campo not in data:
                 return jsonify({"error": f"Falta {campo}"}), 400
 
+        data["equipo_local"] = data["equipo_local"].strip().title()
+        data["equipo_visitante"] = data["equipo_visitante"].strip().title()
+        
         if data["equipo_local"] == data["equipo_visitante"]:
             return jsonify({"error": "Equipos iguales"}), 400
 
+        fase = data["fase"].strip().lower()
         fases_validas = ["grupos", "dieciseisavos", "octavos", "cuartos", "semis", "final"]
-        if data["fase"] not in fases_validas:
+       
+        if fase not in fases_validas:
             return jsonify({"error": "Fase inválida"}), 400
+        
+        data["fase"] = fase
+
+        try:
+            fecha = datetime.strptime(data["fecha"], "%Y-%m-%d")
+            data["fecha"] = fecha.strftime("%Y-%m-%d")
+        except:
+            return jsonify({"error": "Fecha inválida, usar YYYY-MM-DD"}), 400
 
         query_check = """
             SELECT id FROM partidos 
