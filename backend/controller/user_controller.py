@@ -1,13 +1,12 @@
-from flask import jsonify
+from flask import jsonify, url_for
 from database.database import consultar_db
 
-def get_usuarios(request): #GET/USUARIOS
+def get_usuarios(request):
     limit = request.args.get("_limit", 10, type=int)
     offset = request.args.get("_offset", 0, type=int)
 
     query = "SELECT id, nombre, email FROM usuarios LIMIT %s OFFSET %s"
     params = (limit, offset)
-
     result = consultar_db(query, params)
 
     count_query = "SELECT COUNT(*) as total FROM usuarios"
@@ -16,19 +15,17 @@ def get_usuarios(request): #GET/USUARIOS
 
     last_offset = max(0, ((total - 1) // limit) * limit)
 
-    users_response = {
-        "usuarios": result,
-        "_links": {
-            "_first": {"href": f"/usuarios?_limit={limit}&_offset=0"},
-            "_last": {"href": f"/usuarios?_limit={limit}&_offset={last_offset}"}
-        }
+    links = {
+        "_first": {"href": url_for("usuario.listar_usuarios", _limit=limit, _offset=0, _external=True)},
+        "_last": {"href": url_for("usuario.listar_usuarios", _limit=limit, _offset=last_offset, _external=True)}
     }
 
     if offset > 0:
         prev_off = max(0, offset - limit)
-        users_response["_links"]["_prev"] = {"href": f"/usuarios?_limit={limit}&_offset={prev_off}"}
-    
-    if offset + limit < total:
-        users_response["_links"]["_next"] = {"href": f"/usuarios?_limit={limit}&_offset={offset + limit}"}
+        links["_prev"] = {"href": url_for("usuario.listar_usuarios", _limit=limit, _offset=prev_off, _external=True)}
 
-    return jsonify(users_response)
+    if offset + limit < total:
+        links["_next"] = {"href": url_for("usuario.listar_usuarios", _limit=limit, _offset=offset + limit, _external=True)}
+
+
+    return jsonify({"usuarios": result, "_links": links})

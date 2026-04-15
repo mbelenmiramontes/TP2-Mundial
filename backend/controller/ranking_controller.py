@@ -6,6 +6,7 @@ from collections import defaultdict
 def get_ranking(limit, offset):
     query = """
         SELECT
+            usuarios.id AS id_usuario,
             usuarios.nombre,
             predicciones.goles_local AS goles_local,
             predicciones.goles_visitante AS pred_visitante,
@@ -22,10 +23,10 @@ def get_ranking(limit, offset):
 
     puntos_usuarios = defaultdict(int)
     for row in rows:
-        pred_local = row["prediccion_goles_local"]
-        pred_visitante = row["prediccion_goles_visitante"]
-        real_local = row["real_goles_local"]
-        real_visitante = row["real_goles_visitante"]
+        pred_local = row["goles_local"]
+        pred_visitante = row["pred_visitante"]
+        real_local = row["real_local"]
+        real_visitante = row["real_visitante"]
 
         if pred_local == real_local and pred_visitante == real_visitante:
             puntos = 3
