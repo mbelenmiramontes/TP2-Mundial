@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify, url_for
-from controller.match_controller import mostrar_partidos, crear_partido, actualizar_partido, actualizar_partido_id
-from controller.results_controller import cargar_resultado
+from controladores.controlador_partido import mostrar_partidos, crear_partido, actualizar_partido, actualizar_partido_id
+from controladores.controlador_resultado import cargar_resultado
 from database.database import conectar_db
 
-match_bp = Blueprint('match', __name__)
+partido_bp = Blueprint('match', __name__)
 
 
-@match_bp.route("/partidos", methods=["GET"])
+@partido_bp.route("/partidos", methods=["GET"])
 def listar_partidos():
     try:
         equipo = request.args.get('equipo')
@@ -69,13 +69,13 @@ def listar_partidos():
         }]}), 500
 
 
-@match_bp.route("/partidos", methods=["POST"])
+@partido_bp.route("/partidos", methods=["POST"])
 def crear_partido_route():
     data = request.get_json()
     return crear_partido(data)
 
 
-@match_bp.route("/partidos/<int:id>", methods=["GET"])
+@partido_bp.route("/partidos/<int:id>", methods=["GET"])
 def obtener_partido(id):
     if id <= 0:
         return jsonify({"errors": [{
@@ -135,7 +135,7 @@ def obtener_partido(id):
         }]}), 500
 
 
-@match_bp.route("/partidos/<int:id>", methods=["PUT"])
+@partido_bp.route("/partidos/<int:id>", methods=["PUT"])
 def reemplazar_partido_route(id):
     if id <= 0:
         return jsonify({ "errors": [{
@@ -148,7 +148,7 @@ def reemplazar_partido_route(id):
     return actualizar_partido(id, data)
 
 
-@match_bp.route("/partidos/<int:id>", methods=["PATCH"])
+@partido_bp.route("/partidos/<int:id>", methods=["PATCH"])
 def actualizar_parcialmente_partido(id):
     try:
         data = request.get_json()
@@ -192,7 +192,7 @@ def actualizar_parcialmente_partido(id):
         }]}), 500
 
 
-@match_bp.route("/partidos/<int:id>", methods=["DELETE"])
+@partido_bp.route("/partidos/<int:id>", methods=["DELETE"])
 def borrar_partido(id):
     if id <= 0:
         return jsonify({ "errors": [{
@@ -236,7 +236,7 @@ def borrar_partido(id):
         if 'conn' in locals(): conn.close()
 
 
-@match_bp.route("/partidos/<int:id>/resultado", methods=["PUT"])
+@partido_bp.route("/partidos/<int:id>/resultado", methods=["PUT"])
 def actualizar_resultado(id):
     if id <= 0:
         return jsonify({ "errors": [{

@@ -76,7 +76,7 @@ def crear_partido(data): #POST/PARTIDOS
             }]}), 400
         
         fase = data["fase"].strip().lower()
-          
+
         fases_validas = ["grupos", "dieciseisavos", "octavos", "cuartos", "semis", "final"]
         if fase not in fases_validas:
             return jsonify({ "errors": [{
@@ -85,9 +85,9 @@ def crear_partido(data): #POST/PARTIDOS
                 "level": "error", 
                 "description": "Fase inválida"
             }]}), 400
-          
+        
         data["fase"] = fase
-          
+
         try:
             fecha = datetime.strptime(data["fecha"], "%Y-%m-%d")
             data["fecha"] = fecha.strftime("%Y-%m-%d")
@@ -170,15 +170,19 @@ def actualizar_partido(id, data): #PUT/PARTIDOS/<ID>
                 "level": "error",
                 "description": "El equipo local y visitante no pueden ser el mismo"
             }]}), 400
+        
+        fase = data["fase"].strip().lower()
 
         fases_validas = ["grupos", "dieciseisavos", "octavos", "cuartos", "semis", "final"]
-        if data["fase"] not in fases_validas:
+        if fase not in fases_validas:
             return jsonify({ "errors": [{
                 "code": "400",
                 "message": "Bad Request",
                 "level": "error",
                 "description": "Fase inválida"
             }]}), 400
+        
+        data["fase"] = fase
 
         partido_existente = consultar_db("SELECT id FROM partidos WHERE id = %s", (id,))
         if not partido_existente:

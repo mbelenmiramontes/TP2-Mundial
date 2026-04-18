@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from controller.user_controller import get_usuarios
+from controladores.controlador_usuario import get_usuarios
 from database.database import conectar_db, modificar_db, consultar_db
 
 usuario_bp = Blueprint('usuario', __name__)
