@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from controller.ranking_controller import get_ranking
+from controladores.controlador_ranking import get_ranking
 
 ranking_bp = Blueprint('ranking', __name__)
 

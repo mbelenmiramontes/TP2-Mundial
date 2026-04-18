@@ -1,8 +1,7 @@
-from flask import jsonify
+from flask import jsonify, url_for
 from database.database import consultar_db
 from collections import defaultdict
 
-#def get_ranking(request):
 def get_ranking(limit, offset):
     query = """
         SELECT
@@ -43,18 +42,17 @@ def get_ranking(limit, offset):
 
     total = len(listado_ranking)
     last_offset = max(0, ((total - 1) // limit) * limit)
-    paginated = listado_ranking[offset:offset + limit]
+    top_ranking = listado_ranking[offset:offset + limit]
 
-    response = {
-        "ranking": paginated,
-        "_links": {
-            "first": f"/ranking?_limit={limit}&_offset=0",
-            "last": f"/ranking?_limit={limit}&_offset={last_offset}",
+    links = {
+            "_first": {"href": url_for("ranking.obtener_ranking", _limit=limit, _offset=0, _external=True)},
+            "_last": {"href": url_for("ranking.obtener_ranking", _limit=limit, _offset=last_offset, _external=True)},
         }
-    }
+    
     if offset > 0:
-        response["_links"]["prev"] = f"/ranking?_limit={limit}&_offset={max(0, offset - limit)}"
+        links["prev"] = {"href": url_for("ranking.obtener_ranking", _limit=limit, _offset=max(0, offset - limit), _external=True)}
     if offset + limit < total:
-        response["_links"]["next"] = f"/ranking?_limit={limit}&_offset={offset + limit}"
+        links["next"] = {"href": url_for("ranking.obtener_ranking", _limit=limit, _offset=offset + limit, _external=True)}
 
-    return jsonify(response)
+
+    return jsonify({"ranking": top_ranking, "_links": links})
