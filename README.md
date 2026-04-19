@@ -4,7 +4,7 @@ Este proyecto consiste en el desarrollo de una API utilizando Python y Flask par
 
 ### Integrantes del grupo
 * Agustina Santos - 115127
-* Bautista Rago Bustabas, 115781
+* Bautista Rago Bustabas 115781
 * Facundo Ariel Mamani - 115292
 * Julián López Azar - 115400
 * Luciano Chirito - 115334
@@ -79,7 +79,7 @@ A continuación se muestran ejemplos básicos de lo que se espera como resultado
 * Restricciones de Predicción: Solo se puede predecir un partido que no haya comenzado y solo una vez por usuario.
 * Puntaje ProDe: 3 puntos por resultado exacto, 1 punto por acertar ganador/empate.
 
-### Gestion de usuarios
+# Gestión de usuarios
 * Crear usuario: `POST /usuarios`
 
 **Body:**
@@ -88,12 +88,58 @@ A continuación se muestran ejemplos básicos de lo que se espera como resultado
   "email": "blanzillota@fi.uba.ar"
 }
 
-**Response:**
+**Response (201 Created):**
 {
   "id": 1
 }
 
-### Gestion de partidos
+
+* Consultar usuarios: `GET /usuarios`
+
+**Response (200 OK):**
+{
+  "total": 1,
+  "usuarios": [
+    {
+      "id": 1,
+      "nombre": "Bruno Lanzillota",
+      "email": "blanzillota@fi.uba.ar"
+    }
+  ],
+  "_links": {
+    "_first": { "href": "/usuarios?_limit=10&_offset=0" },
+    "_last": { "href": "/usuarios?_limit=10&_offset=0" }
+  }
+}
+
+
+* Obtener usuario por ID: `GET /usuarios/1`
+
+**Response (200 OK):**
+{
+  "id": 1,
+  "nombre": "Bruno Lanzillota",
+  "email": "blanzillota@fi.uba.ar"
+}
+
+
+* Actualizar usuario: `PUT /usuarios/1`
+
+**Body:**
+{
+  "nombre": "Bruno Lanzillota Modificado",
+  "email": "bruno.nuevo@fi.uba.ar"
+}
+
+**Response**: *204 No content*
+
+
+* Eliminar usuario: `DELETE /usuarios/1`
+
+**Response**: *204 No content*
+
+
+# Gestión de partidos
 * Crear partido: `POST /partidos`
 
 **Body:**
@@ -192,7 +238,7 @@ A continuación se muestran ejemplos básicos de lo que se espera como resultado
   ]
 }
 
-### Gestion de Ranking
+# Gestión de Ranking
 * Consultar Ranking: `GET /ranking`
 
 **Response (200 OK):**
