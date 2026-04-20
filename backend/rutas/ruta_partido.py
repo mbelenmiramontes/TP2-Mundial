@@ -107,8 +107,8 @@ def obtener_partido(id):
                 "id": partido["id"],
                 "equipo_local": partido["equipo_local"],
                 "equipo_visitante": partido["equipo_visitante"],
-                "fecha": partido["fecha"].isoformat() if partido["fecha"] else None,
-                "fase": partido["fase"].upper() if partido["fase"] else None,
+                "fecha": partido["fecha"].isoformat(),
+                "fase": partido["fase"].upper(),
                 "resultado": None
             }
 
