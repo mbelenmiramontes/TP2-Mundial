@@ -15,8 +15,6 @@ def get_ranking(limit, offset):
         INNER JOIN predicciones ON usuarios.id = predicciones.id_usuario
         INNER JOIN resultados ON predicciones.id_partido = resultados.id_partido
 """
-    # El inner join une usuario con sus predicciones
-    # El inner join une prediccion con el resultado del partido
 
     rows = consultar_db(query)
 
@@ -30,6 +28,8 @@ def get_ranking(limit, offset):
         if pred_local == real_local and pred_visitante == real_visitante:
             puntos = 3
         elif (pred_local > pred_visitante and real_local > real_visitante) or (pred_local < pred_visitante and real_local < real_visitante):
+            puntos = 1
+        elif pred_local == pred_visitante and real_local == real_visitante:
             puntos = 1
         else:
             puntos = 0
